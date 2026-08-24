@@ -43,6 +43,21 @@ omarchy bar move bivekk51.screentime --section right
 - `T` switches Today / Week. `R` forces a save.
 - Right-click or middle-click saves now.
 
+## Remove
+
+```sh
+omarchy plugin remove bivekk51.screentime
+```
+
+This only unloads the plugin and deletes its code under
+`~/.config/omarchy/plugins/`. Your usage history is kept separately under
+`~/.local/state/bivekk51.screentime/` so removing and reinstalling doesn't lose
+data; delete that directory to wipe it completely:
+
+```sh
+rm -rf ~/.local/state/bivekk51.screentime
+```
+
 ## Configure
 
 Settings live inline in `~/.config/omarchy/shell.json` under the widget entry
