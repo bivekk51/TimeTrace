@@ -21,6 +21,14 @@ your machine.
   screen are excluded. No multi-monitor split; the focused window on the active
   seat is what counts.
 
+## Preview
+
+The panel follows your Omarchy theme. Shown across a few:
+
+| Tokyo Night | Solitude | Matte Black |
+|-------------|----------|-------------|
+| ![Tokyo Night](preview/preview-tokyonight.png) | ![Solitude](preview/preview-solitudetheme.png) | ![Matte Black](preview/preview-matteblacktheme.png) |
+
 ## Install
 
 From this repo (or any git URL) into the Omarchy plugin directory:
