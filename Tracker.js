@@ -146,6 +146,11 @@ function safeKey(appId, maxLen) {
 }
 
 function validDateKey(s) {
-  return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s)
+  if (typeof s !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false
+  var p = s.split("-")
+  var y = +p[0], m = +p[1], d = +p[2]
+  if (m < 1 || m > 12 || d < 1 || d > 31) return false
+  var dt = new Date(y, m - 1, d)
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d
 }
 

@@ -429,27 +429,33 @@ Panel {
                           spacing: Style.space(8)
 
                           Text {
+                            id: nameText
                             text: modelData.name
                             color: root.foreground
                             font.family: root.fontFamily
                             font.pixelSize: Style.font.body
                             elide: Text.ElideRight
-                            width: parent.width - timeText.width - Style.space(8) - Style.space(70)
+                            width: parent.width - timeText.width - Style.space(8) - (modelData.category !== "Other" ? categoryChip.width + Style.space(8) : 0)
                           }
                           Rectangle {
+                            id: categoryChip
                             anchors.verticalCenter: parent.verticalCenter
-                            width: Style.space(60)
+                            width: Math.min(Style.space(120), categoryLabel.implicitWidth + Style.space(12))
                             height: Style.space(16)
                             radius: Style.cornerRadius
                             color: Style.hoverFillFor(root.foreground, Color.accent)
                             visible: modelData.category !== "Other"
                             Text {
+                              id: categoryLabel
                               anchors.centerIn: parent
+                              width: parent.width
                               text: modelData.category.toUpperCase()
                               color: root.dim
                               font.family: root.fontFamily
                               font.pixelSize: Style.font.caption
                               font.letterSpacing: 0.5
+                              horizontalAlignment: Text.AlignHCenter
+                              elide: Text.ElideRight
                             }
                           }
                           Text {
