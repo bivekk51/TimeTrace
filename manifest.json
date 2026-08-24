@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "bivekk51.screentime",
+  "name": "Screen Time",
+  "version": "0.1.0",
+  "author": "Bivek Karki",
+  "license": "MIT",
+  "description": "macOS-style screen time: per-app usage today, a 24-hour timeline, and a weekly view, tracked locally.",
+  "kinds": ["bar-widget"],
+  "activation": "on-demand",
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Screen Time",
+    "description": "Per-app usage, 24-hour timeline, and weekly overview.",
+    "category": "Productivity",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "slotMinutes": 30,
+      "idleThresholdSec": 60,
+      "excluded": []
+    },
+    "schema": [
+      {
+        "key": "slotMinutes",
+        "type": "integer",
+        "label": "Timeline slot length (minutes)",
+        "description": "Width of each segment in the 24-hour bar. 30 = 48 slots per day.",
+        "min": 5,
+        "max": 120,
+        "step": 5,
+        "defaultValue": 30
+      },
+      {
+        "key": "idleThresholdSec",
+        "type": "integer",
+        "label": "Idle threshold (seconds)",
+        "description": "Stop counting once the user has been idle this long.",
+        "min": 10,
+        "max": 600,
+        "step": 10,
+        "defaultValue": 60
+      },
+      {
+        "key": "excluded",
+        "type": "array",
+        "label": "Excluded apps",
+        "description": "App IDs (window classes) to ignore, e.g. [\"steam\", \"discord\"]",
+        "items": { "type": "string" }
+      }
+    ]
+  }
+}
