@@ -54,15 +54,7 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    iconComponent: Component {
-      Text {
-        text: "🕐"
-        color: root.bar ? root.bar.barForeground : Color.foreground
-        font.family: root.bar ? root.bar.fontFamily : Style.font.family
-        font.pixelSize: Style.bar.iconFont
-        opacity: root.opened ? 1.0 : 0.75
-      }
-    }
+    text: "󰅐"
     tooltipText: "Screen Time"
 
     onPressed: function (b) {

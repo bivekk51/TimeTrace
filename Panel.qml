@@ -174,7 +174,7 @@ Panel {
 
             Text {
               anchors.verticalCenter: parent.verticalCenter
-              text: "🕐"
+              text: "󰅐"
               color: root.foreground
               font.family: root.fontFamily
               font.pixelSize: Style.font.title
@@ -204,7 +204,7 @@ Panel {
                   height: Style.space(26)
                   radius: Style.cornerRadius
                   color: root.view === modelData.key
-                    ? Style.selectedStateColor(root.foreground, Color.accent)
+                    ? Style.selectedFillFor(root.foreground, Color.accent)
                     : "transparent"
 
                   Text {
