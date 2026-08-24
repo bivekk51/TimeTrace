@@ -87,23 +87,26 @@ function hueFor(key, accentColor) {
 }
 
 // Apply seconds to a day record (mutates in place). app = resolved meta.
-function addSeconds(day, appKey, app, seconds, slot) {
+// `o` carries the bound constants so stored fields and counts stay bounded.
+function addSeconds(day, appKey, app, seconds, slot, o) {
   if (!day.apps[appKey]) {
     day.apps[appKey] = {
       id: appKey,
-      name: app.name,
-      category: app.category,
-      icon: app.icon,
+      name: app ? normStr(app.name, o.maxNameLen) : "Unknown",
+      category: app ? normStr(app.category, o.maxCatLen) : "Other",
+      icon: app ? normStr(app.icon, o.maxIconLen) : "",
       seconds: 0
     }
   }
-  day.apps[appKey].seconds += seconds
-  day.totalSeconds += seconds
+  day.apps[appKey].seconds = clampInt(day.apps[appKey].seconds + seconds, 0, o.maxSecPerApp)
+  day.totalSeconds = clampInt(day.totalSeconds + seconds, 0, o.maxTotalSec)
 
   var slotKey = String(slot)
+  if (slot < 0 || slot > o.maxSlotIndex) return
   if (!day.timeline[slotKey]) day.timeline[slotKey] = {}
-  if (!day.timeline[slotKey][appKey]) day.timeline[slotKey][appKey] = 0
-  day.timeline[slotKey][appKey] += seconds
+  var t = day.timeline[slotKey]
+  if (!t[appKey] && Object.keys(t).length >= o.maxSlotApps) return
+  t[appKey] = clampInt((t[appKey] || 0) + seconds, 0, o.maxSecPerApp)
 }
 
 // Build a fresh empty day record.
@@ -111,15 +114,38 @@ function emptyDay(key) {
   return { date: key, totalSeconds: 0, apps: {}, timeline: {} }
 }
 
-// Merge one parsed day file into an accumulator of app totals.
-function mergeDayAppTotals(acc, day) {
-  if (!day || !day.apps) return acc
-  for (var id in day.apps) {
-    var a = day.apps[id]
-    if (!acc[id]) {
-      acc[id] = { id: id, name: a.name, category: a.category, icon: a.icon, seconds: 0 }
-    }
-    acc[id].seconds += a.seconds || 0
-  }
-  return acc
+// ---- hardening helpers (bounds + normalization) ---------------------------
+
+function clampInt(n, min, max) {
+  n = Math.floor(Number(n))
+  if (!isFinite(n)) n = min
+  return Math.max(min, Math.min(max, n))
 }
+
+// Strip control characters and cap length so stored/rendered strings stay bounded.
+function normStr(s, maxLen) {
+  s = String(s == null ? "" : s)
+  s = s.replace(/[\x00-\x1f\x7f]/g, "")
+  if (s.length > maxLen) s = s.slice(0, maxLen)
+  return s
+}
+
+// App keys are persisted as object keys and later iterated, so they must be a
+// tight, length-bounded character set.
+function validKey(s) {
+  return /^[A-Za-z0-9._-]+$/.test(s)
+}
+
+// Lowercase + length-cap an app id, rejecting anything outside the key charset
+// so a hostile/malformed window class can never become a persisted key.
+function safeKey(appId, maxLen) {
+  var s = String(appId == null ? "" : appId).toLowerCase()
+  if (s.length > maxLen) s = s.slice(0, maxLen)
+  if (!validKey(s)) return null
+  return s
+}
+
+function validDateKey(s) {
+  return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s)
+}
+

@@ -68,7 +68,8 @@ function appEntry(appId, title) {
     "blender":                 { name: "Blender",       category: "Design",      icon: "󰣐" },
     "org.omarchy.screensaver": { name: "Lock Screen",   category: "System",      icon: "󰌾", locker: true },
     "waylock":                 { name: "Lock Screen",   category: "System",      icon: "󰌾", locker: true },
-    "hyprlock":                { name: "Lock Screen",   category: "System",      icon: "󰌾", locker: true }
+    "hyprlock":                { name: "Lock Screen",   category: "System",      icon: "󰌾", locker: true },
+    "__other__":               { name: "Other",         category: "Other",       icon: "󰏓", locker: false }
   }
 
   var id = String(appId || "").toLowerCase()
