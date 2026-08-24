@@ -69,6 +69,10 @@ Item {
     return Qt.resolvedUrl("store.sh").toString().replace(/^file:\/\//, "")
   }
 
+  function readerScript() {
+    return Qt.resolvedUrl("readstate.py").toString().replace(/^file:\/\//, "")
+  }
+
   // ---- settings plumbing -------------------------------------------------
   function setting(name, fallback) {
     var v = root.settings ? root.settings[name] : undefined
@@ -285,17 +289,14 @@ Item {
     if (root.panelVisible) recompute()
   }
 
-  // Bounded, no-follow, non-blocking regular-file read. The path is passed as
-  // an argv element (never interpolated into the script) so a crafted
-  // HOME/XDG_STATE_HOME containing shell metacharacters cannot alter the
-  // program. The [ -f ] && [ ! -L ] gate ensures only plain regular files are
-  // read: symlinks are refused (no follow) and FIFOs/devices are skipped so
-  // head can never block the persistent shell.
+  // Bounded, descriptor-bound, no-follow, non-blocking read. The path is passed
+  // as an argv element (never interpolated into a shell), and readstate.py opens
+  // it ONCE with O_NOFOLLOW|O_NONBLOCK and reads from that single descriptor.
+  // Because the no-follow / non-blocking decision and the read share one open()
+  // syscall, there is no second name resolution and therefore no TOCTOU window
+  // in which the entry could be swapped for a symlink or FIFO.
   function loadToday() {
-    var n = String(root.maxFileBytes)
-    loader.command = ["bash", "-lc",
-      'f="$1"; if [ -f "$f" ] && [ ! -L "$f" ]; then head -c ' + n + ' -- "$f"; fi',
-      "_", filePath()]
+    loader.command = [readerScript(), "today", String(root.maxFileBytes), filePath()]
     loader.running = true
   }
 
@@ -343,9 +344,7 @@ Item {
 
   // ---- week view (loaded on demand) -------------------------------------
   function loadWeek() {
-    var n = String(root.maxFileBytes)
-    var script = 'dir="$1"; for i in 6 5 4 3 2 1 0; do d=$(date -d "-$i day" +%Y-%m-%d); f="$dir/$d.json"; if [ -f "$f" ] && [ ! -L "$f" ]; then head -c ' + n + ' -- "$f"; fi; done'
-    weekLoader.command = ["bash", "-lc", script, "_", root.storeDir]
+    weekLoader.command = [readerScript(), "week", String(root.maxFileBytes), root.storeDir]
     weekLoader.running = true
   }
 
