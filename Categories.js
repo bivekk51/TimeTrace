@@ -98,9 +98,11 @@ function isBrowser(appId) {
 }
 
 // Strip the trailing " - BrowserName" tail most browsers leave on their
-// window title so the recovered page label reads cleanly.
+// window title so the recovered page label reads cleanly. The result is also
+// control-character stripped and length-capped so a website-controlled title
+// can never become an unbounded or markup-bearing render value.
 function pageFromTitle(appId, title) {
-  var t = String(title || "").trim()
+  var t = String(title || "").replace(/[\x00-\x1f\x7f]/g, "").trim()
   if (t === "") return ""
 
   var tails = [
@@ -115,8 +117,12 @@ function pageFromTitle(appId, title) {
   ]
 
   for (var i = 0; i < tails.length; i++) {
-    if (t.slice(-tails[i].length) === tails[i]) return t.slice(0, t.length - tails[i].length).trim()
+    if (t.slice(-tails[i].length) === tails[i]) {
+      t = t.slice(0, t.length - tails[i].length).trim()
+      break
+    }
   }
+  if (t.length > 128) t = t.slice(0, 128)
   return t
 }
 

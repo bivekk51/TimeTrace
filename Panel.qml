@@ -259,7 +259,8 @@ Panel {
                   }
                   Text {
                     visible: root.currentAppName !== ""
-                    text: (root.currentPage !== "" ? root.currentPage : root.currentAppName) + " · now"
+                    text: (root.currentPage !== "" ? root.currentPage : Tracker.normStr(root.currentAppName, 64)) + " · now"
+                    textFormat: Text.PlainText
                     color: root.dim
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
@@ -413,6 +414,7 @@ Panel {
                       Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: modelData.icon || "󰏓"
+                        textFormat: Text.PlainText
                         color: root.foreground
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.title
@@ -431,6 +433,7 @@ Panel {
                           Text {
                             id: nameText
                             text: modelData.name
+                            textFormat: Text.PlainText
                             color: root.foreground
                             font.family: root.fontFamily
                             font.pixelSize: Style.font.body
@@ -450,6 +453,7 @@ Panel {
                               anchors.centerIn: parent
                               width: parent.width
                               text: modelData.category.toUpperCase()
+                              textFormat: Text.PlainText
                               color: root.dim
                               font.family: root.fontFamily
                               font.pixelSize: Style.font.caption
@@ -462,6 +466,7 @@ Panel {
                             id: timeText
                             anchors.verticalCenter: parent.verticalCenter
                             text: Tracker.formatDuration(modelData.seconds)
+                            textFormat: Text.PlainText
                             color: root.dim
                             font.family: root.fontFamily
                             font.pixelSize: Style.font.caption
@@ -594,6 +599,7 @@ Panel {
                     Text {
                       anchors.verticalCenter: parent.verticalCenter
                       text: modelData.icon || "󰏓"
+                      textFormat: Text.PlainText
                       color: root.foreground
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.title
@@ -602,6 +608,7 @@ Panel {
                     }
                     Text {
                       text: modelData.name
+                      textFormat: Text.PlainText
                       color: root.foreground
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.body
@@ -612,6 +619,7 @@ Panel {
                       id: timeText2
                       anchors.verticalCenter: parent.verticalCenter
                       text: Tracker.formatDuration(modelData.seconds)
+                      textFormat: Text.PlainText
                       color: root.dim
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.caption
