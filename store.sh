@@ -6,6 +6,10 @@ set -euo pipefail
 
 target="${1:?usage: store.sh <path>}"
 
+# Refuse a symlink target so a replaced/predictable state entry cannot redirect
+# the atomic write through a symlink.
+[ ! -L "$target" ] || { echo "store.sh: refusing symlink target $target" >&2; exit 1; }
+
 mkdir -p "$(dirname "$target")"
 
 # Read one line (the JSON payload written by the plugin) then finish. Quickshell

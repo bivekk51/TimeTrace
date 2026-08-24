@@ -285,9 +285,17 @@ Item {
     if (root.panelVisible) recompute()
   }
 
-  // Bounded regular-file read: head -c caps the bytes we ever pull in.
+  // Bounded, no-follow, non-blocking regular-file read. The path is passed as
+  // an argv element (never interpolated into the script) so a crafted
+  // HOME/XDG_STATE_HOME containing shell metacharacters cannot alter the
+  // program. The [ -f ] && [ ! -L ] gate ensures only plain regular files are
+  // read: symlinks are refused (no follow) and FIFOs/devices are skipped so
+  // head can never block the persistent shell.
   function loadToday() {
-    loader.command = ["bash", "-lc", "head -c " + root.maxFileBytes + " \"" + filePath() + "\" 2>/dev/null || true"]
+    var n = String(root.maxFileBytes)
+    loader.command = ["bash", "-lc",
+      'f="$1"; if [ -f "$f" ] && [ ! -L "$f" ]; then head -c ' + n + ' -- "$f"; fi',
+      "_", filePath()]
     loader.running = true
   }
 
@@ -335,9 +343,9 @@ Item {
 
   // ---- week view (loaded on demand) -------------------------------------
   function loadWeek() {
-    var dir = root.storeDir
-    var script = 'for i in 6 5 4 3 2 1 0; do d=$(date -d "-$i day" +%Y-%m-%d); f="' + dir + '/$d.json"; [ -f "$f" ] && head -c ' + root.maxFileBytes + ' "$f"; done'
-    weekLoader.command = ["bash", "-lc", script]
+    var n = String(root.maxFileBytes)
+    var script = 'dir="$1"; for i in 6 5 4 3 2 1 0; do d=$(date -d "-$i day" +%Y-%m-%d); f="$dir/$d.json"; if [ -f "$f" ] && [ ! -L "$f" ]; then head -c ' + n + ' -- "$f"; fi; done'
+    weekLoader.command = ["bash", "-lc", script, "_", root.storeDir]
     weekLoader.running = true
   }
 
