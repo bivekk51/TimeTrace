@@ -3,7 +3,7 @@
   "id": "bivekk51.screentime",
   "name": "Screen Time",
   "version": "0.1.0",
-  "author": "Bivek Karki",
+  "author": "Bivek Nepal",
   "license": "MIT",
   "description": "macOS-style screen time: per-app usage today, a 24-hour timeline, and a weekly view, tracked locally.",
   "kinds": ["bar-widget"],
