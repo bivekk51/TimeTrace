@@ -45,6 +45,7 @@ Item {
   property string currentAppKey: ""
   property var currentAppMeta: null
   property string currentPage: ""
+  property bool dayLoaded: false
 
   // --- ingestion / persistence bounds (defense in depth)
   readonly property int maxFileBytes: 262144      // 256 KiB read + serialized cap
@@ -144,6 +145,7 @@ Item {
     persist()
     root.dayKey = key
     root.day = Tracker.emptyDay(key)
+    root.dayLoaded = true
     recompute()
   }
 
@@ -191,6 +193,7 @@ Item {
   property int ticksSinceFlush: 0
 
   function maybeFlush() {
+    if (!root.dayLoaded) return
     root.ticksSinceFlush++
     if (root.ticksSinceFlush >= 30) {
       root.ticksSinceFlush = 0
@@ -221,7 +224,7 @@ Item {
 
   function persist() {
     if (!root.day) return
-    writer.command = [storeScript(), filePath()]
+    writer.command = ["sh", storeScript(), filePath()]
     root.pendingWrite = buildJson()
     writer.running = true
   }
@@ -285,6 +288,7 @@ Item {
     var clean = sanitizeDay(d)
     if (!clean || clean.date !== root.dayKey) return
     root.day = clean
+    root.dayLoaded = true
     refreshBarTotal()
     if (root.panelVisible) recompute()
   }
@@ -296,7 +300,7 @@ Item {
   // syscall, there is no second name resolution and therefore no TOCTOU window
   // in which the entry could be swapped for a symlink or FIFO.
   function loadToday() {
-    loader.command = [readerScript(), "today", String(root.maxFileBytes), filePath()]
+    loader.command = ["python3", readerScript(), "today", String(root.maxFileBytes), filePath()]
     loader.running = true
   }
 
@@ -344,7 +348,7 @@ Item {
 
   // ---- week view (loaded on demand) -------------------------------------
   function loadWeek() {
-    weekLoader.command = [readerScript(), "week", String(root.maxFileBytes), root.storeDir]
+    weekLoader.command = ["python3", readerScript(), "week", String(root.maxFileBytes), root.storeDir]
     weekLoader.running = true
   }
 
